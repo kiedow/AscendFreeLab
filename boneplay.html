@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BonePlay — AFL</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .game-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-bar {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+    }
+
+    .stat-box {
+      flex: 1;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-mute);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .stat-value.green { color: var(--green); }
+    .stat-value.cyan { color: var(--cyan); }
+
+    .level-badge {
+      text-align: center;
+      font-size: 0.75rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .avatar-area {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 340px;
+      margin: 0 auto;
+      border-radius: 24px;
+      background: radial-gradient(circle at 50% 40%, rgba(74,222,128,0.1), transparent 70%);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.08s ease;
+    }
+
+    .avatar-area:active {
+      transform: scale(0.98);
+    }
+
+    .avatar-area canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      width: 0%;
+      transition: width 0.15s ease;
+      box-shadow: 0 0 10px rgba(74,222,128,0.6);
+    }
+
+    .hammer-btn {
+      width: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      border: 1.5px solid var(--green);
+      background: rgba(74,222,128,0.08);
+      color: var(--green);
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .hammer-btn:active {
+      transform: scale(0.97);
+      background: rgba(74,222,128,0.18);
+      box-shadow: 0 0 20px rgba(74,222,128,0.5);
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      margin: 20px 0 10px;
+      font-weight: 700;
+    }
+
+    .shop-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255,255,255,0.025);
+      margin-bottom: 8px;
+      gap: 12px;
+    }
+
+    .shop-item.owned {
+      border-color: rgba(74,222,128,0.4);
+      background: rgba(74,222,128,0.06);
+    }
+
+    .shop-item.active {
+      border-color: var(--green);
+      box-shadow: 0 0 12px rgba(74,222,128,0.3);
+    }
+
+    .shop-info { flex: 1; min-width: 0; }
+
+    .shop-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .shop-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .shop-buy {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--green);
+      background: rgba(74,222,128,0.08);
+      color: var(--green);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .shop-buy:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: var(--glass-border);
+      color: var(--text-mute);
+      background: transparent;
+    }
+
+    .shop-buy:not(:disabled):active {
+      background: rgba(74,222,128,0.2);
+    }
+
+    .levelup-toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(10,10,10,0.95);
+      border: 2px solid var(--green);
+      border-radius: 20px;
+      padding: 24px 32px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(74,222,128,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s ease;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+    }
+
+    .levelup-toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .levelup-toast .lv-label {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      margin-bottom: 6px;
+    }
+
+    .levelup-toast .lv-name {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--green);
+      letter-spacing: 1px;
+      text-shadow: 0 0 16px rgba(74,222,128,0.8);
+    }
+
+    .float-text {
+      position: absolute;
+      color: var(--green);
+      font-weight: 800;
+      font-size: 1.1rem;
+      pointer-events: none;
+      animation: floatUp 0.7s ease-out forwards;
+      text-shadow: 0 0 10px rgba(74,222,128,0.8);
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-60px); }
+    }
+
+    .reset-btn {
+      margin-top: 24px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,80,80,0.3);
+      background: transparent;
+      color: rgba(255,80,80,0.8);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="logo">AFL</div>
+    <div class="spacer"></div>
+  </div>
+
+  <main class="page">
+    <h1 class="title">Bone<span class="accent">Play</span></h1>
+    <p class="subtitle">Smash. Grow. Ascend.</p>
+
+    <div class="game-wrap">
+
+      <div class="stat-bar">
+        <div class="stat-box">
+          <div class="stat-label">Удары</div>
+          <div class="stat-value cyan" id="hitsDisplay">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Bonemass</div>
+          <div class="stat-value green" id="bmDisplay">0</div>
+        </div>
+      </div>
+
+      <div class="level-badge" id="levelName">Sub5</div>
+
+      <div class="avatar-area" id="avatarArea">
+        <canvas id="avatarCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <button class="hammer-btn" id="hammerBtn">
+        🔨 SMASH
+      </button>
+
+      <div class="section-title">Молотки</div>
+      <div id="hammersList"></div>
+
+      <div class="section-title">Баффы</div>
+      <div id="buffsList"></div>
+
+      <button class="reset-btn" id="resetBtn">Сбросить прогресс</button>
+
+    </div>
+  </main>
+
+  <div class="levelup-toast" id="toast">
+    <div class="lv-label">Новый уровень</div>
+    <div class="lv-name" id="toastName">LTN</div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Главная</span>
+    </a>
+    <a href="academy.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+      <span>Академия</span>
+    </a>
+    <a href="boneplay.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M14 3l7 7-4 4-7-7z"/><path d="M10 7l-7 7 4 4 7-7"/></svg>
+      <span>BonePlay</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span>Профиль</span>
+    </a>
+  </nav>
+
+  <script>
+  (function () {
+    // ==== КОНФИГ ====
+    const LEVELS = [
+      { name: 'Sub5',      need: 5000,       tier: 1 },
+      { name: 'LTN',       need: 25000,      tier: 2 },
+      { name: 'LTB',       need: 100000,     tier: 3 },
+      { name: 'MTN',       need: 500000,     tier: 4 },
+      { name: 'HTN',       need: 2000000,    tier: 5 },
+      { name: 'HTB',       need: 10000000,   tier: 6 },
+      { name: 'ChadLite',  need: 50000000,   tier: 7 },
+      { name: 'Chad',      need: 200000000,  tier: 8 },
+      { name: 'AdamLite',  need: 1000000000, tier: 9 },
+      { name: 'True Adam', need: Infinity,   tier: 10 },
+    ];
+
+    const HAMMERS = [
+      { id: 0, name: 'Магазинный', price: 0,      dmg: 1 },
+      { id: 1, name: 'Серебряный', price: 1250,   dmg: 2 },
+      { id: 2, name: 'Золотой',    price: 7000,   dmg: 5 },
+      { id: 3, name: 'Алмазный',   price: 56000,  dmg: 12 },
+      { id: 4, name: 'Кувалда',    price: 300000, dmg: 29 },
+    ];
+
+    const BUFFS = [
+      { id: 'retatrutide', name: 'Retatrutide', price: 2300,  mult: 2 },
+      { id: 'glp1',        name: 'GLP-1',       price: 17000, mult: 3 },
+    ];
+
+    // ==== СОСТОЯНИЕ ====
+    const STORAGE_KEY = 'boneplay_save_v1';
+
+    let state = {
+      level: 0,        // индекс в LEVELS
+      bm: 0,           // текущий bonemass
+      hits: 0,         // валюта ударов
+      hammer: 0,       // индекс молотка
+      ownedHammers: [0],
+      buff: null,      // активный бафф (id) или null
+      ownedBuffs: [],
+    };
+
+    function save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) state = Object.assign(state, JSON.parse(raw));
+      } catch (e) {}
+    }
+
+    // ==== DOM ====
+    const hitsDisplay = document.getElementById('hitsDisplay');
+    const bmDisplay = document.getElementById('bmDisplay');
+    const levelName = document.getElementById('levelName');
+    const avatarArea = document.getElementById('avatarArea');
+    const canvas = document.getElementById('avatarCanvas');
+    const ctx = canvas.getContext('2d');
+    const progressFill = document.getElementById('progressFill');
+    const hammerBtn = document.getElementById('hammerBtn');
+    const hammersList = document.getElementById('hammersList');
+    const buffsList = document.getElementById('buffsList');
+    const resetBtn = document.getElementById('resetBtn');
+    const toast = document.getElementById('toast');
+    const toastName = document.getElementById('toastName');
+
+    // ==== ФОРМАТ ЧИСЕЛ ====
+    function fmt(n) {
+      if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+      if (n >= 1e9)  return (n/1e9).toFixed(2) + 'B';
+      if (n >= 1e6)  return (n/1e6).toFixed(2) + 'M';
+      if (n >= 1e3)  return (n/1e3).toFixed(1) + 'K';
+      return Math.floor(n).toString();
+    }
+
+    // ==== ТЕКУЩИЙ УРОН ====
+    function currentDmg() {
+      const base = HAMMERS[state.hammer].dmg;
+      const mult = state.buff ? (BUFFS.find(b => b.id === state.buff)?.mult || 1) : 1;
+      return base * mult;
+    }
+
+    // ==== РИСОВАНИЕ ЧЕЛОВЕЧКА ====
+    function drawAvatar() {
+      const W = 600, H = 600;
+      ctx.clearRect(0, 0, W, H);
+
+      const tier = LEVELS[state.level].tier; // 1..10
+      const t = (tier - 1) / 9; // 0..1
+
+      // Свечение фона
+      const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/2);
+      grad.addColorStop(0, `rgba(74,222,128,${0.05 + t * 0.15})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Плечи (растут с уровнем)
+      const shoulderW = 120 + t * 200;
+      ctx.fillStyle = `rgb(${40 + t*20}, ${60 + t*40}, ${45 + t*30})`;
+      ctx.beginPath();
+      ctx.ellipse(W/2, 520, shoulderW, 80 + t*40, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Шея
+      const neckW = 40 + t * 60;
+      ctx.fillStyle = `rgb(${180 + t*40}, ${140 + t*20}, ${110})`;
+      ctx.fillRect(W/2 - neckW/2, 380, neckW, 100);
+
+      // Голова (растёт)
+      const headR = 70 + t * 70;
+      ctx.fillStyle = `rgb(${200 + t*30}, ${160 + t*30}, ${130})`;
+      ctx.beginPath();
+      ctx.arc(W/2, 320, headR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Линия челюсти (становится мощнее)
+      if (t > 0.2) {
+        ctx.strokeStyle = `rgba(20, 20, 20, ${0.3 + t * 0.5})`;
+        ctx.lineWidth = 2 + t * 4;
+        ctx.beginPath();
+        ctx.moveTo(W/2 - headR * 0.7, 320 + headR * 0.3);
+        ctx.lineTo(W/2, 320 + headR * 0.95);
+        ctx.lineTo(W/2 + headR * 0.7, 320 + headR * 0.3);
+        ctx.stroke();
+      }
+
+      // Глаза
+      const eyeOff = headR * 0.35;
+      const eyeY = 320 - headR * 0.15;
+      const eyeR = 4 + t * 6;
+
+      // Брови (нарастают — "мьют")
+      ctx.fillStyle = '#222';
+      ctx.fillRect(W/2 - eyeOff - 18, eyeY - 30 - t*10, 36, 6 + t*6);
+      ctx.fillRect(W/2 + eyeOff - 18, eyeY - 30 - t*10, 36, 6 + t*6);
+
+      // Зрачки
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(W/2 - eyeOff, eyeY, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(W/2 + eyeOff, eyeY, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Рот
+      ctx.strokeStyle = '#222';
+      ctx.lineWidth = 2 + t * 2;
+      ctx.beginPath();
+      if (t < 0.5) {
+        // улыбка слабая
+        ctx.moveTo(W/2 - 20, 320 + headR * 0.5);
+        ctx.lineTo(W/2 + 20, 320 + headR * 0.5);
+      } else {
+        // уверенная улыбка
+        ctx.moveTo(W/2 - 25, 320 + headR * 0.5);
+        ctx.quadraticCurveTo(W/2, 320 + headR * 0.65, W/2 + 25, 320 + headR * 0.5);
+      }
+      ctx.stroke();
+
+      // Корона для финала
+      if (tier === 10) {
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 60px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('👑', W/2, 100);
+      }
+
+      // Название уровня над головой
+      ctx.fillStyle = `rgba(74,222,128,${0.5 + t * 0.5})`;
+      ctx.font = 'bold 28px -apple-system, Helvetica';
+      ctx.textAlign = 'center';
+      ctx.fillText(LEVELS[state.level].name, W/2, 60);
+    }
+
+    // ==== ОБНОВЛЕНИЕ UI ====
+    function updateUI() {
+      hitsDisplay.textContent = fmt(state.hits);
+      bmDisplay.textContent = fmt(state.bm);
+      levelName.textContent = LEVELS[state.level].name;
+
+      const need = LEVELS[state.level].need;
+      const pct = need === Infinity ? 100 : Math.min(100, (state.bm / need) * 100);
+      progressFill.style.width = pct + '%';
+
+      drawAvatar();
+      renderShop();
+      save();
+    }
+
+    // ==== МАГАЗИН ====
+    function renderShop() {
+      // Молотки
+      hammersList.innerHTML = '';
+      HAMMERS.forEach((h, i) => {
+        const owned = state.ownedHammers.includes(i);
+        const active = state.hammer === i;
+        const div = document.createElement('div');
+        div.className = 'shop-item' + (owned ? ' owned' : '') + (active ? ' active' : '');
+        div.innerHTML = `
+          <div class="shop-info">
+            <div class="shop-name">${h.name}</div>
+            <div class="shop-sub">Урон: ${h.dmg} · ${owned ? (active ? 'Активен' : 'Куплен') : 'Цена: ' + fmt(h.price) + ' 💥'}</div>
+          </div>
+          ${owned
+            ? (active ? '' : `<button class="shop-buy" data-hammer="${i}">Выбрать</button>`)
+            : `<button class="shop-buy" data-hammer-buy="${i}" ${state.hits < h.price ? 'disabled' : ''}>Купить</button>`
+          }
+        `;
+        hammersList.appendChild(div);
+      });
+
+      // Баффы
+      buffsList.innerHTML = '';
+      BUFFS.forEach((b) => {
+        const owned = state.ownedBuffs.includes(b.id);
+        const active = state.buff === b.id;
+        const div = document.createElement('div');
+        div.className = 'shop-item' + (owned ? ' owned' : '') + (active ? ' active' : '');
+        div.innerHTML = `
+          <div class="shop-info">
+            <div class="shop-name">${b.name}</div>
+            <div class="shop-sub">×${b.mult} удары · ${owned ? (active ? 'Активен' : 'Куплен') : 'Цена: ' + fmt(b.price) + ' 💥'}</div>
+          </div>
+          ${owned
+            ? (active ? '' : `<button class="shop-buy" data-buff="${b.id}">Активировать</button>`)
+            : `<button class="shop-buy" data-buff-buy="${b.id}" ${state.hits < b.price ? 'disabled' : ''}>Купить</button>`
+          }
+        `;
+        buffsList.appendChild(div);
+      });
+
+      // Обработчики
+      hammersList.querySelectorAll('[data-hammer-buy]').forEach(btn => {
+        btn.onclick = () => {
+          const i = parseInt(btn.dataset.hammerBuy);
+          const h = HAMMERS[i];
+          if (state.hits >= h.price && !state.ownedHammers.includes(i)) {
+            state.hits -= h.price;
+            state.ownedHammers.push(i);
+            state.hammer = i;
+            updateUI();
+          }
+        };
+      });
+
+      hammersList.querySelectorAll('[data-hammer]').forEach(btn => {
+        btn.onclick = () => {
+          state.hammer = parseInt(btn.dataset.hammer);
+          updateUI();
+        };
+      });
+
+      buffsList.querySelectorAll('[data-buff-buy]').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.buffBuy;
+          const b = BUFFS.find(x => x.id === id);
+          if (state.hits >= b.price && !state.ownedBuffs.includes(id)) {
+            state.hits -= b.price;
+            state.ownedBuffs.push(id);
+            state.buff = id;
+            updateUI();
+          }
+        };
+      });
+
+      buffsList.querySelectorAll('[data-buff]').forEach(btn => {
+        btn.onclick = () => {
+          state.buff = btn.dataset.buff;
+          updateUI();
+        };
+      });
+    }
+
+    // ==== УДАР ====
+    function smash() {
+      const dmg = currentDmg();
+      const hits = state.buff ? (BUFFS.find(b => b.id === state.buff)?.mult || 1) : 1;
+
+      state.bm += dmg;
+      state.hits += hits;
+
+      // Всплывающий текст
+      const float = document.createElement('div');
+      float.className = 'float-text';
+      float.textContent = '+' + dmg;
+      const rect = avatarArea.getBoundingClientRect();
+      float.style.left = (Math.random() * 60 + 20) + '%';
+      float.style.top = (Math.random() * 30 + 30) + '%';
+      avatarArea.appendChild(float);
+      setTimeout(() => float.remove(), 700);
+
+      // Проверка уровня
+      const need = LEVELS[state.level].need;
+      if (state.bm >= need && state.level < LEVELS.length - 1) {
+        state.bm = 0;
+        state.level++;
+        showToast(LEVELS[state.level].name);
+      }
+
+      updateUI();
+    }
+
+    function showToast(name) {
+      toastName.textContent = name;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    // ==== СОБЫТИЯ ====
+    hammerBtn.addEventListener('click', (e) => { e.preventDefault(); smash(); });
+    avatarArea.addEventListener('click', (e) => { e.preventDefault(); smash(); });
+
+    resetBtn.addEventListener('click', () => {
+      if (confirm('Сбросить весь прогресс?')) {
+        state = {
+          level: 0, bm: 0, hits: 0, hammer: 0,
+          ownedHammers: [0], buff: null, ownedBuffs: [],
+        };
+        updateUI();
+      }
+    });
+
+    // ==== СТАРТ ====
+    load();
+    updateUI();
+  })();
+  </script>
+
+</body>
+</html>
