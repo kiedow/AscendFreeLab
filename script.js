@@ -231,3 +231,9 @@ document.querySelectorAll('.topic').forEach(topic => {
     }
   });
 })();
+// Автоподсчёт гайдов в каждой теме
+document.querySelectorAll('.topic').forEach(topic => {
+  const links = topic.querySelectorAll('.topic-guides a');
+  const counter = topic.querySelector('.topic-count');
+  if (counter) counter.textContent = links.length;
+});
