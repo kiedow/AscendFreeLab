@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFL — Профиль</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    .profile-head { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-border); margin-bottom: 16px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #1a3d2a, #0a1d12); border: 2px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: var(--green); flex-shrink: 0; overflow: hidden; box-shadow: 0 0 16px rgba(74,222,128,0.4); }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-info { flex: 1; min-width: 0; }
+    .profile-name { font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-status { display: inline-block; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.3); border-radius: 8px; padding: 3px 8px; margin-bottom: 6px; }
+    .profile-id { font-size: 0.72rem; color: var(--text-mute); letter-spacing: 0.5px; }
+    .profile-id span { color: var(--text-dim); font-weight: 600; }
+
+    .section { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 16px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .section-label { font-size: 0.68rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--green); font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .section-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .section-title { font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 8px; line-height: 1.25; }
+    .section-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 16px; }
+
+    .free-list { list-style: none; padding: 0; margin: 0 0 14px; }
+    .free-list li { font-size: 0.88rem; color: var(--text-dim); padding: 6px 0 6px 24px; position: relative; }
+    .free-list li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 800; font-size: 1rem; }
+
+    .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text); font-size: 0.92rem; font-weight: 600; font-family: inherit; text-decoration: none; cursor: pointer; margin-bottom: 8px; transition: all 0.2s ease; }
+    .btn:last-child { margin-bottom: 0; }
+    .btn:hover { border-color: rgba(74,222,128,0.4); background: rgba(74,222,128,0.06); }
+    .btn .btn-arrow { color: var(--green); font-size: 1.1rem; font-weight: 800; }
+    .btn-green { background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.4); color: var(--green); justify-content: center; font-weight: 800; }
+    .btn-green:hover { background: rgba(74,222,128,0.15); box-shadow: 0 0 16px rgba(74,222,128,0.3); }
+
+    .faq-item { border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); margin-bottom: 8px; overflow: hidden; }
+    .faq-q { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; user-select: none; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .faq-q .faq-icon { color: var(--green); font-size: 1.1rem; transition: transform 0.25s ease; flex-shrink: 0; margin-left: 10px; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.25s ease; padding: 0 16px; font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; }
+    .faq-item.open .faq-a { max-height: 400px; padding: 0 16px 14px; }
+
+    .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-name { font-size: 0.9rem; color: var(--text); font-weight: 600; }
+    .setting-sub { font-size: 0.72rem; color: var(--text-mute); margin-top: 2px; }
+    .toggle { width: 44px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); position: relative; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+    .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #666; transition: all 0.2s ease; }
+    .toggle.on { background: rgba(74,222,128,0.2); border-color: var(--green); }
+    .toggle.on::after { left: 20px; background: var(--green); box-shadow: 0 0 8px rgba(74,222,128,0.8); }
+
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; padding: 24px 16px; font-size: 0.75rem; color: var(--text-mute); text-align: center; }
+    .footer-links a { color: var(--text-mute); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--green); }
+    .version { text-align: center; font-size: 0.7rem; color: var(--text-mute); letter-spacing: 1px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="logo">AFL</div>
+    <div class="spacer"></div>
+  </div>
+
+  <main class="page">
+    <h1 class="title">Профиль</h1>
+    <p class="subtitle">Твой аккаунт</p>
+
+    <div class="profile-head">
+      <div class="profile-avatar" id="avatar">A</div>
+      <div class="profile-info">
+        <div class="profile-name" id="userName">Гость</div>
+        <div class="profile-status">Активен</div>
+        <div class="profile-id">ID: <span id="userId">—</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">AFL FREE</div>
+      <div class="section-title">Всё бесплатно. Навсегда.</div>
+      <p class="section-text">AFL — бесплатный сервис для тех, кто хочет прокачать себя. Без подписок, без платежей, без ограничений.</p>
+      <ul class="free-list">
+        <li>Академия — все гайды</li>
+        <li>BonePlay — игра</li>
+        <li>Профиль и сохранение прогресса</li>
+        <li>Обновления навсегда</li>
+      </ul>
+      <p class="section-text" style="margin-bottom:0;font-style:italic;color:var(--text-mute);">Мы верим, что знания должны быть свободными.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-label">ТЕХ ПОДДЕРЖКА</div>
+      <div class="section-title">Есть вопрос, баг или идея?</div>
+      <p class="section-text">Напиши нам — ответим. Обычно в течение 24 часов.</p>
+
+      <a href="https://t.me/AFLhelper" target="_blank" class="btn">
+        <span>💬 Написать в поддержку</span>
+        <span class="btn-arrow">→</span>
+      </a>
+
+      <div style="margin-top:20px;">
+        <div class="section-label">FAQ</div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Сервис платный?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">Нет. AFL — полностью бесплатный сервис. Все гайды, игра BonePlay, профиль и все функции доступны каждому без подписок, платежей и ограничений.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Где найти гайды?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">Все гайды находятся в разделе «Академия». Гайды сгруппированы по темам и добавляются постепенно.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Как сбросить прогресс в BonePlay?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">Открой BonePlay, прокрути вниз — там будет кнопка «Сбросить прогресс». Она удалит весь прогресс. Если игра открыта из Telegram, прогресс сбросится и в облаке.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Что такое Roupe?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">Roupe — кнопка в BonePlay. Появляется на ранге Gigachad. Сбрасывает весь прогресс, но даёт ×2 к урону навсегда. Повторный Roupe не складывается — максимум ×2.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Как поддержать проект?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">AFL бесплатный и всегда будет таким. Если хочешь помочь — в профиле есть блок «Поддержать проект». Средства идут на хостинг, новые гайды и развитие.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Как связаться с автором?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">Напиши в Тех поддержку — это личный Telegram автора: @AFLhelper. Отвечаем в порядке очереди.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Будет ли мобильное приложение?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">Пока нет. Но AFL работает как Mini App в Telegram — открывай через @ascendfl_robot. Если появится финансирование — возможно, выпустим отдельное приложение.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q"><span>Как часто выходят новые гайды?</span><span class="faq-icon">+</span></div>
+          <div class="faq-a">По мере готовности. Следи за обновлениями в канале @ascendfl.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">ПОДДЕРЖАТЬ ПРОЕКТ</div>
+      <div class="section-title">Помочь AFL расти</div>
+      <p class="section-text">AFL бесплатный. Но если хочешь помочь проекту развиваться — можешь поддержать. Все средства идут на хостинг, новые гайды и функции.</p>
+
+      <a href="https://t.me/ascendfl_robot?start=support" target="_blank" class="btn btn-green">⭐ Поддержать звёздами</a>
+      <a href="https://t.me/ascendfl_robot?start=crypto" target="_blank" class="btn btn-green">💰 Поддержать криптой</a>
+    </div>
+
+    <div class="section">
+      <div class="section-label">СООБЩЕСТВО</div>
+      <div class="section-title">Следи за обновлениями</div>
+      <p class="section-text">Новые гайды, фишки, апдейты — всё в нашем канале.</p>
+
+      <a href="https://t.me/ascendfl" target="_blank" class="btn">
+        <span>📢 Канал @ascendfl</span>
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="section">
+      <div class="section-label">НАСТРОЙКИ</div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Анимации</div>
+          <div class="setting-sub">Тряска и всплывающий текст</div>
+        </div>
+        <div class="toggle on" data-toggle="animations"></div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Вибрация</div>
+          <div class="setting-sub">Тактильный отклик при тапах</div>
+        </div>
+        <div class="toggle on" data-toggle="vibration"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">О ПРОЕКТЕ</div>
+      <div class="section-title">AFL — Ascend Free Lab</div>
+      <p class="section-text">AFL — это бесплатная база знаний для тех, кто хочет прокачать себя: внешность, здоровье, мышление, присутствие.</p>
+      <p class="section-text" style="margin-bottom:0;">Только реальная информация, которая работает — если ты готов работать.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="privacy.html">Политика конфиденциальности</a>
+      <span>·</span>
+      <a href="terms.html">Пользовательское соглашение</a>
+      <span>·</span>
+      <a href="https://t.me/AFLhelper" target="_blank">Поддержка</a>
+    </div>
+    <div class="version">AFL v1.0 · Сделано с 🖤</div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Главная</span>
+    </a>
+    <a href="academy.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+      <span>Академия</span>
+    </a>
+    <a href="boneplay.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M14 3l7 7-4 4-7-7z"/><path d="M10 7l-7 7 4 4 7-7"/></svg>
+      <span>BonePlay</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span>Профиль</span>
+    </a>
+  </nav>
+
+  <script src="script.js"></script>
+  <script>
+  (function () {
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      const u = tg.initDataUnsafe.user;
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username || 'Пользователь';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userId').textContent = u.id;
+      if (u.photo_url) {
+        const avatar = document.getElementById('avatar');
+        avatar.innerHTML = '<img src="' + u.photo_url + '" alt="">';
+      } else {
+        document.getElementById('avatar').textContent = (u.first_name || 'A')[0].toUpperCase();
+      }
+      if (tg.ready) tg.ready();
+      if (tg.expand) tg.expand();
+    } else {
+      document.getElementById('userName').textContent = 'Гость';
+      document.getElementById('userId').textContent = 'не в Telegram';
+    }
+
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.closest('.faq-item');
+        item.classList.toggle('open');
+      });
+    });
+
+    document.querySelectorAll('.toggle').forEach(t => {
+      t.addEventListener('click', () => {
+        t.classList.toggle('on');
+        const key = 'afl_setting_' + t.dataset.toggle;
+        try { localStorage.setItem(key, t.classList.contains('on') ? '1' : '0'); } catch (e) {}
+      });
+    });
+
+    document.querySelectorAll('.toggle').forEach(t => {
+      const key = 'afl_setting_' + t.dataset.toggle;
+      try {
+        const val = localStorage.getItem(key);
+        if (val === '0') t.classList.remove('on');
+        if (val === '1') t.classList.add('on');
+      } catch (e) {}
+    });
+  })();
+  </script>
+
+</body>
+</html>
