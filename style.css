@@ -105,7 +105,7 @@ h1.title .accent { color: var(--green); }
   margin-bottom: 36px;
 }
 
-/* ==== ПАНЕЛЬ ==== */
+/* ==== PANEL ==== */
 .panel {
   position: relative;
   background: var(--glass);
@@ -177,7 +177,7 @@ h1.title .accent { color: var(--green); }
 
 .panel strong { color: var(--text); font-weight: 600; }
 
-/* ==== ТЕМА (карточка как на скринах) ==== */
+/* ==== TOPIC (АКАДЕМИЯ) ==== */
 .topic {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--glass-border);
@@ -189,7 +189,7 @@ h1.title .accent { color: var(--green); }
     0 4px 20px rgba(0,0,0,0.35),
     inset 0 1px 0 rgba(255,255,255,0.04);
   overflow: hidden;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
 }
 
 .topic:hover {
@@ -205,6 +205,11 @@ h1.title .accent { color: var(--green); }
   cursor: pointer;
   gap: 16px;
   user-select: none;
+  transition: background 0.3s ease;
+}
+
+.topic-header:active {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .topic-info { flex: 1; min-width: 0; }
@@ -246,23 +251,25 @@ h1.title .accent { color: var(--green); }
   letter-spacing: 0.5px;
 }
 
-.topic-arrow {
-  display: none;
-}
+.topic-arrow { display: none; }
 
-/* ==== РАСКРЫТЫЙ СПИСОК ГАЙДОВ ==== */
+/* ==== СПИСОК ГАЙДОВ ==== */
 .topic-guides {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .topic.open .topic-guides {
-  max-height: 2000px;
+  max-height: 3000px; /* ← увеличено для 50+ гайдов */
 }
 
 .topic.open {
   border-color: rgba(74, 222, 128, 0.35);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    0 0 20px rgba(74,222,128,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .topic-guides ul {
@@ -281,13 +288,14 @@ h1.title .accent { color: var(--green); }
   border-radius: 12px;
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.05);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .topic-guides a:hover {
   color: var(--green);
   background: rgba(74,222,128,0.06);
   border-color: rgba(74,222,128,0.25);
+  transform: translateX(2px);
 }
 
 .topic-guides .empty {
@@ -360,7 +368,7 @@ h1.title .accent { color: var(--green); }
   font-size: 0.68rem;
   letter-spacing: 0.3px;
   position: relative;
-  transition: color 0.25s ease;
+  transition: color 0.3s ease;
   font-family: inherit;
 }
 
@@ -372,7 +380,7 @@ h1.title .accent { color: var(--green); }
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
 }
 
 .nav-item:hover { color: #aaa; }
@@ -409,102 +417,102 @@ h1.title .accent { color: var(--green); }
   background: var(--glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .back:hover {
   color: var(--green);
   border-color: rgba(74,222,128,0.3);
+  transform: translateX(-2px);
 }
-/* ==== ГЕНЕРАТОР КАРТОЧКИ ==== */
-.file-input {
+
+/* ==== CAT-BTN (для кнопок) ==== */
+.cat-btn {
   width: 100%;
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.03);
-  color: var(--text);
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.photo-preview {
-  margin-top: 12px;
-}
-
-.photo-preview img {
-  width: 100%;
-  border-radius: 14px;
-  display: block;
-}
-
-.rank-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.rank-btn {
-  padding: 12px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.03);
-  color: var(--text-dim);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.rank-btn:hover {
-  color: var(--text);
-  border-color: rgba(74,222,128,0.3);
-}
-
-.rank-btn.active {
-  color: var(--green);
-  border-color: var(--green);
-  background: rgba(74,222,128,0.08);
-  box-shadow: 0 0 12px rgba(74,222,128,0.3);
-}
-
-.cat-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.result-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
-}
-
-.result-label {
-  font-size: 0.72rem;
-  color: var(--text-mute);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.result-value {
-  font-size: 1.4rem;
-  font-weight: 800;
+  padding: 20px 22px;
+  margin-bottom: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
   color: var(--text);
-}
-
-.result-rank {
-  color: var(--cyan);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  margin-left: 4px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: all 0.35s ease;
+  text-align: left;
+  font-family: inherit;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
 }
 
-.card-preview {
-  width: 100%;
-  border-radius: 20px;
+.cat-btn:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(74,222,128,0.35);
+}
+
+.cat-btn .plus {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  color: var(--green);
+  font-size: 1rem;
+  font-weight: 400;
+  transition: transform 0.35s ease;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.cat-btn.active .plus {
+  transform: rotate(45deg);
+}
+
+/* ==== GUIDE-LIST (старый аккордеон) ==== */
+.guide-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), margin 0.35s ease;
+  margin-top: -12px;
+  margin-bottom: 0;
+}
+
+.guide-list.open {
+  max-height: 3000px;
   margin-bottom: 16px;
+}
+
+.guide-list ul {
+  list-style: none;
+  padding: 12px 14px 6px;
+}
+
+.guide-list li { margin: 4px 0; }
+
+.guide-list a {
   display: block;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.92rem;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s ease;
+}
+
+.guide-list a:hover {
+  color: var(--green);
+  background: rgba(74,222,128,0.06);
+  border-color: rgba(74,222,128,0.25);
 }
