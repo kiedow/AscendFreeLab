@@ -26,7 +26,7 @@
     .free-list li { font-size: 0.88rem; color: var(--text-dim); padding: 6px 0 6px 24px; position: relative; }
     .free-list li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 800; font-size: 1rem; }
 
-    .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text); font-size: 0.92rem; font-weight: 600; font-family: inherit; text-decoration: none; cursor: pointer; margin-bottom: 8px; transition: all 0.2s ease; }
+    .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text); font-size: 0.92rem; font-weight: 600; font-family: inherit; text-decoration: none; cursor: pointer; margin-bottom: 8px; transition: all 0.3s ease; }
     .btn:last-child { margin-bottom: 0; }
     .btn:hover { border-color: rgba(74,222,128,0.4); background: rgba(74,222,128,0.06); }
     .btn .btn-arrow { color: var(--green); font-size: 1.1rem; font-weight: 800; }
@@ -94,7 +94,7 @@
       <p class="section-text">Напиши нам — ответим. Обычно в течение 24 часов.</p>
 
       <a href="https://t.me/AFLhelper" target="_blank" class="btn">
-        <span>💬 Написать в поддержку</span>
+        <span>Написать в поддержку</span>
         <span class="btn-arrow">→</span>
       </a>
 
@@ -144,14 +144,14 @@
       </div>
     </div>
 
-  <div class="section">
-  <div class="section-label">ПОДДЕРЖАТЬ ПРОЕКТ</div>
-  <div class="section-title">Помочь AFL расти</div>
-  <p class="section-text">AFL бесплатный в данный момент. Но если нагрузка повысится — возможно, придётся поднять плату. Твоя поддержка помогает сервису оставаться бесплатным.</p>
+    <div class="section">
+      <div class="section-label">ПОДДЕРЖАТЬ ПРОЕКТ</div>
+      <div class="section-title">Помочь AFL расти</div>
+      <p class="section-text">AFL бесплатный. Но если хочешь помочь проекту развиваться — можешь поддержать. Все средства идут на хостинг, новые гайды и функции.</p>
 
-  <a href="https://t.me/ascendfl_robot?start=support" target="_blank" class="btn btn-green">⭐ Поддержать звёздами</a>
-  <a href="support.html" class="btn btn-green">💰 Поддержать криптой</a>
-  </div>
+      <a href="https://t.me/ascendfl_robot?start=support" target="_blank" class="btn btn-green">Поддержать звёздами</a>
+      <a href="https://t.me/ascendfl_robot?start=crypto" target="_blank" class="btn btn-green">Поддержать криптой</a>
+    </div>
 
     <div class="section">
       <div class="section-label">СООБЩЕСТВО</div>
@@ -159,7 +159,7 @@
       <p class="section-text">Новые гайды, фишки, апдейты — всё в нашем канале.</p>
 
       <a href="https://t.me/ascendfl" target="_blank" class="btn">
-        <span>📢 Канал @ascendfl</span>
+        <span>Канал @ascendfl</span>
         <span class="btn-arrow">→</span>
       </a>
     </div>
@@ -239,6 +239,20 @@
       }
       if (tg.ready) tg.ready();
       if (tg.expand) tg.expand();
+
+      // Проверка подписки
+      fetch('https://afl-bot.azferon94782.workers.dev/api/check-sub', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData: tg.initData, userId: u.id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.subscribed) {
+          document.body.innerHTML = '<div style="padding:20px;text-align:center;color:#fff;font-family:sans-serif;margin-top:50px;"><h2>Доступ закрыт</h2><p style="color:#888;">Подпишись на канал <a href="https://t.me/ascendfl" style="color:#4ade80;">@ascendfl</a>, чтобы открыть профиль.</p></div>';
+        }
+      });
+
     } else {
       document.getElementById('userName').textContent = 'Гость';
       document.getElementById('userId').textContent = 'не в Telegram';
@@ -268,7 +282,6 @@
       } catch (e) {}
     });
   })();
-  <script src="auth.js"></script>
   </script>
 
 </body>
