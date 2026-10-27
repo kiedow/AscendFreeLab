@@ -14,19 +14,9 @@
     .stat-value { font-size: 1.3rem; font-weight: 800; color: var(--text); }
     .stat-value.green { color: var(--green); }
     .stat-value.cyan { color: var(--cyan); }
-    .avatar-area { position: relative; width: 100%; aspect-ratio: 1; max-width: 340px; margin: 0 auto; border-radius: 24px; background: radial-gradient(circle at 50% 40%, rgba(74,222,128,0.1), transparent 70%); border: 1px solid var(--glass-border); cursor: pointer; overflow: hidden; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+    .avatar-area { position: relative; width: 100%; aspect-ratio: 1; max-width: 340px; margin: 0 auto; border-radius: 24px; background: radial-gradient(circle at 50% 40%, rgba(74,222,128,0.1), transparent 70%); border: 1px solid var(--glass-border); cursor: pointer; overflow: hidden; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; transition: transform 0.08s ease; }
+    .avatar-area:active { transform: scale(0.98); }
     .avatar-area canvas { width: 100%; height: 100%; display: block; }
-
-    @keyframes shake {
-      0% { transform: translate(0, 0) rotate(0); }
-      20% { transform: translate(-6px, -3px) rotate(-2deg); }
-      40% { transform: translate(6px, 2px) rotate(2deg); }
-      60% { transform: translate(-4px, 3px) rotate(-1deg); }
-      80% { transform: translate(4px, -2px) rotate(1deg); }
-      100% { transform: translate(0, 0) rotate(0); }
-    }
-    .avatar-area.shake canvas { animation: shake 0.2s ease; }
-
     .rank-progress { width: 100%; max-width: 340px; margin: 0 auto; }
     .rank-labels { display: flex; justify-content: space-between; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; color: var(--text-mute); margin-bottom: 6px; }
     .rank-labels .rank-left { color: var(--green); }
@@ -34,7 +24,6 @@
     .progress-bar { width: 100%; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.06); overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); width: 0%; transition: width 0.15s ease; box-shadow: 0 0 10px rgba(74,222,128,0.6); }
     .bm-text { text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; }
-
     .hammer-btn { width: 100%; padding: 20px; border-radius: 20px; border: 1.5px solid var(--green); background: rgba(74,222,128,0.08); color: var(--green); font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: all 0.1s ease; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
     .hammer-btn:active { transform: scale(0.97); background: rgba(74,222,128,0.18); box-shadow: 0 0 20px rgba(74,222,128,0.5); }
     .section-title { font-size: 0.75rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-mute); margin: 20px 0 10px; font-weight: 700; align-self: flex-start; }
@@ -103,10 +92,10 @@
         <div class="progress-bar">
           <div class="progress-fill" id="progressFill"></div>
         </div>
-        <div class="bm-text" id="bmText">0 / 10.0K</div>
+        <div class="bm-text" id="bmText">0 / 6.3K</div>
       </div>
 
-      <button class="hammer-btn" id="hammerBtn">🔨 SMASH</button>
+      <button class="hammer-btn" id="hammerBtn">SMASH</button>
 
       <div id="roupeWrap" style="display:none; width:100%;">
         <button class="roupe-btn" id="roupeBtn">ROUPE</button>
@@ -157,49 +146,32 @@
 
   <script>
   (function () {
-    // ==== НАСТРОЙКИ ====
-    function settingOn(key, def) {
-      try {
-        const v = localStorage.getItem('afl_setting_' + key);
-        if (v === '0') return false;
-        if (v === '1') return true;
-      } catch (e) {}
-      return def;
-    }
-    let SETTINGS = {
-      animations: settingOn('animations', true),
-      vibration: settingOn('vibration', true),
-    };
-
-    // ==== УРОВНИ ====
     const LEVELS = [
       { name: 'Sub5',      need: 0,          mult: 1, img: 'image/sub5.png' },
-      { name: 'LTN',       need: 10000,      mult: 2, img: 'image/ltn.png' },
-      { name: 'MTN',       need: 85000,      mult: 3, img: 'image/mtn.png' },
-      { name: 'HTN',       need: 435000,     mult: 4, img: 'image/htn.png' },
-      { name: 'ChadLite',  need: 1935000,    mult: 5, img: 'image/chadlite.png' },
-      { name: 'Chad',      need: 8935000,    mult: 6, img: 'image/chad.png' },
-      { name: 'AdamLite',  need: 53935000,   mult: 7, img: 'image/adamlite.png' },
-      { name: 'Gigachad',  need: 403935000,  mult: 8, img: 'image/gigachad.png' },
+      { name: 'LTN',       need: 6300,       mult: 2, img: 'image/ltn.png' },
+      { name: 'MTN',       need: 53550,      mult: 3, img: 'image/mtn.png' },
+      { name: 'HTN',       need: 274050,     mult: 4, img: 'image/htn.png' },
+      { name: 'ChadLite',  need: 1219050,    mult: 5, img: 'image/chadlite.png' },
+      { name: 'Chad',      need: 5629050,    mult: 6, img: 'image/chad.png' },
+      { name: 'AdamLite',  need: 33979050,   mult: 7, img: 'image/adamlite.png' },
+      { name: 'Gigachad',  need: 254479050,  mult: 8, img: 'image/gigachad.png' },
     ];
 
-    // ==== МОЛОТКИ ====
     const HAMMERS = [
       { id: 0, name: 'Плюшевый',      price: 0,         dmg: 1 },
-      { id: 1, name: 'Магазинный',    price: 2700,      dmg: 7 },
-      { id: 2, name: 'Строительный',  price: 10800,     dmg: 12 },
-      { id: 3, name: 'Массажёр',      price: 76500,     dmg: 19 },
-      { id: 4, name: 'Кувалда',       price: 355500,    dmg: 47 },
-      { id: 5, name: 'Экскалибур',    price: 1800000,   dmg: 180 },
-      { id: 6, name: 'Мьют-молот',    price: 9000000,   dmg: 790 },
+      { id: 1, name: 'Магазинный',    price: 1000,      dmg: 7 },
+      { id: 2, name: 'Строительный',  price: 4500,      dmg: 12 },
+      { id: 3, name: 'Массажёр',      price: 31500,     dmg: 19 },
+      { id: 4, name: 'Кувалда',       price: 148000,    dmg: 47 },
+      { id: 5, name: 'Экскалибур',    price: 753000,    dmg: 180 },
+      { id: 6, name: 'Мьют-молот',    price: 3780000,   dmg: 790 },
     ];
 
-    // ==== БАФФЫ ====
     const BUFFS = [
-      { id: 'retatrutide', name: 'Retatrutide', price: 2500,    mult: 2, minLevel: 0, duration: 0 },
-      { id: 'ghkcu',       name: 'GHK-Cu',      price: 15000,   mult: 3, minLevel: 1, duration: 0 },
-      { id: 'bpc157',      name: 'BPC-157',     price: 59000,   mult: 5, minLevel: 2, duration: 120 },
-      { id: 'cjc',         name: 'CJC-1295',    price: 1000000, mult: 1, minLevel: 3, duration: 0 },
+      { id: 'retatrutide', name: 'Retatrutide', price: 1500,    mult: 2, minLevel: 0, duration: 0 },
+      { id: 'ghkcu',       name: 'GHK-Cu',      price: 9500,    mult: 3, minLevel: 1, duration: 0 },
+      { id: 'bpc157',      name: 'BPC-157',     price: 37000,   mult: 5, minLevel: 2, duration: 120 },
+      { id: 'cjc',         name: 'CJC-1295',    price: 630000,  mult: 1, minLevel: 3, duration: 0 },
     ];
 
     const loadedImages = LEVELS.map(l => {
@@ -361,7 +333,7 @@
         div.innerHTML = `
           <div class="shop-info">
             <div class="shop-name">${h.name}</div>
-            <div class="shop-sub">Урон: ${h.dmg} · ${owned ? (active ? 'Активен' : 'Куплен') : 'Цена: ' + fmt(h.price) + ' 💥'}</div>
+            <div class="shop-sub">Урон: ${h.dmg} · ${owned ? (active ? 'Активен' : 'Куплен') : 'Цена: ' + fmt(h.price) + ' ударов'}</div>
           </div>
           ${owned ? (active ? '' : `<button class="shop-buy" data-hammer="${i}">Выбрать</button>`) : `<button class="shop-buy" data-hammer-buy="${i}" ${state.hits < h.price ? 'disabled' : ''}>Купить</button>`}
         `;
@@ -379,11 +351,11 @@
         div.className = 'shop-item' + (owned ? ' owned' : '') + ((active || bpcActive) ? ' active' : '') + (locked ? ' locked' : '');
         let statusText = '';
         if (locked) statusText = `Откроется на ${LEVELS[b.minLevel].name}`;
-        else if (b.id === 'cjc') statusText = owned ? 'Куплен · 2 баффа одновременно' : `Цена: ${fmt(b.price)} 💥 · 2 баффа`;
+        else if (b.id === 'cjc') statusText = owned ? 'Куплен · 2 баффа одновременно' : `Цена: ${fmt(b.price)} ударов · 2 баффа`;
         else if (b.duration > 0) {
-          if (bpcActive) { const sec = Math.ceil((state.bpcUntil - now) / 1000); statusText = `×${b.mult} · осталось ${sec}с`; }
-          else statusText = `×${b.mult} на ${b.duration}сек · ${owned ? 'Куплен' : 'Цена: ' + fmt(b.price) + ' 💥'}`;
-        } else statusText = `×${b.mult} (удары + урон) · ${owned ? (active ? 'Активен' : 'Куплен') : 'Цена: ' + fmt(b.price) + ' 💥'}`;
+          if (bpcActive) { const sec = Math.ceil((state.bpcUntil - now) / 1000); statusText = `x${b.mult} · осталось ${sec}с`; }
+          else statusText = `x${b.mult} на ${b.duration}сек · ${owned ? 'Куплен' : 'Цена: ' + fmt(b.price) + ' ударов'}`;
+        } else statusText = `x${b.mult} (удары + урон) · ${owned ? (active ? 'Активен' : 'Куплен') : 'Цена: ' + fmt(b.price) + ' ударов'}`;
         div.innerHTML = `
           <div class="shop-info"><div class="shop-name">${b.name}</div><div class="shop-sub">${statusText}</div></div>
           ${locked ? '' : (owned ? (b.id === 'cjc' ? `<button class="shop-buy" data-cjc-open="1">Настроить</button>` : (b.duration > 0 ? `<button class="shop-buy" data-buff-activate="${b.id}" ${bpcActive ? 'disabled' : ''}>${bpcActive ? 'Активен' : 'Активировать'}</button>` : (active ? '' : `<button class="shop-buy" data-buff="${b.id}">Активировать</button>`))) : `<button class="shop-buy" data-buff-buy="${b.id}" ${state.hits < b.price ? 'disabled' : ''}>Купить</button>`)}
@@ -444,7 +416,7 @@
       available.forEach(b => {
         const btn = document.createElement('button');
         btn.className = 'cjc-option';
-        btn.textContent = `${b.name} (×${b.mult})`;
+        btn.textContent = `${b.name} (x${b.mult})`;
         btn.onclick = () => {
           if (cjcSelected.includes(b.id)) { cjcSelected = cjcSelected.filter(x => x !== b.id); btn.classList.remove('selected'); }
           else if (cjcSelected.length < 2) { cjcSelected.push(b.id); btn.classList.add('selected'); }
@@ -467,7 +439,6 @@
     cjcCancel.onclick = () => { cjcModal.classList.remove('show'); };
 
     function vibrate() {
-      if (!SETTINGS.vibration) return;
       try { if (navigator.vibrate) navigator.vibrate(10); } catch (e) {}
     }
 
@@ -480,26 +451,24 @@
 
       vibrate();
 
-      if (SETTINGS.animations) {
-        avatarArea.classList.remove('shake');
-        void avatarArea.offsetWidth;
-        avatarArea.classList.add('shake');
-        setTimeout(() => avatarArea.classList.remove('shake'), 220);
+      avatarArea.classList.remove('shake');
+      void avatarArea.offsetWidth;
+      avatarArea.classList.add('shake');
+      setTimeout(() => avatarArea.classList.remove('shake'), 220);
 
-        const float = document.createElement('div');
-        float.className = 'float-text';
-        float.textContent = '+' + fmt(dmg);
-        float.style.left = (Math.random() * 60 + 20) + '%';
-        float.style.top = (Math.random() * 30 + 30) + '%';
-        avatarArea.appendChild(float);
-        setTimeout(() => float.remove(), 700);
-      }
+      const float = document.createElement('div');
+      float.className = 'float-text';
+      float.textContent = '+' + fmt(dmg);
+      float.style.left = (Math.random() * 60 + 20) + '%';
+      float.style.top = (Math.random() * 30 + 30) + '%';
+      avatarArea.appendChild(float);
+      setTimeout(() => float.remove(), 700);
 
       if (state.level < LEVELS.length - 1) {
         const nextNeed = LEVELS[state.level + 1].need;
         if (state.bm >= nextNeed) {
           state.level++;
-          showToast(LEVELS[state.level].name + ' ×' + LEVELS[state.level].mult);
+          showToast(LEVELS[state.level].name + ' x' + LEVELS[state.level].mult);
         }
       }
 
@@ -516,7 +485,7 @@
     avatarArea.addEventListener('click', (e) => { e.preventDefault(); smash(); });
 
     roupeBtn.addEventListener('click', () => {
-      if (!confirm('Roupe? Прогресс сбросится, ты получишь ×2 к урону навсегда.')) return;
+      if (!confirm('Roupe? Прогресс сбросится, ты получишь x2 к урону навсегда.')) return;
       state = { level: 0, bm: 0, hits: 0, hammer: 0, ownedHammers: [0], buff: null, activeBuffs: [], ownedBuffs: [], bpcUntil: 0, roupeBonus: true };
       updateUI();
     });
@@ -533,8 +502,4 @@
 
     load(() => { updateUI(); });
   })();
-  <script src="auth.js"></script>
-  </script>
-
-</body>
-</html>
+  </script
