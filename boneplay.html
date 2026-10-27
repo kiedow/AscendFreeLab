@@ -503,3 +503,24 @@
     load(() => { updateUI(); });
   })();
   </script
+  
+  <script>
+    // Проверка подписки
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+      const tg = window.Telegram.WebApp;
+      fetch('https://afl-bot.azferon94782.workers.dev/api/check-sub', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData: tg.initData, userId: tg.initDataUnsafe.user.id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.subscribed) {
+          document.body.innerHTML = '<div style="padding:20px;text-align:center;color:#fff;font-family:sans-serif;margin-top:50px;"><h2>Доступ закрыт</h2><p style="color:#888;">Подпишись на канал <a href="https://t.me/ascendfl" style="color:#4ade80;">@ascendfl</a>, чтобы играть.</p></div>';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+```
