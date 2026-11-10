@@ -237,3 +237,26 @@ document.querySelectorAll('.topic').forEach(topic => {
   const counter = topic.querySelector('.topic-count');
   if (counter) counter.textContent = links.length;
 });
+// ==========================================
+// ЗАЩИТА КОНТЕНТА (от новичков)
+// ==========================================
+
+// Блокировка правого клика (контекстного меню)
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Блокировка горячих клавиш (F12, Ctrl+Shift+I, Ctrl+U)
+document.addEventListener('keydown', e => {
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault();
+    }
+});
+
+// Запрет выделения текста
+document.addEventListener('selectstart', e => e.preventDefault());
+
+// Запрет перетаскивания картинок
+document.addEventListener('dragstart', e => {
+    if (e.target.tagName === 'IMG') e.preventDefault();
+});
